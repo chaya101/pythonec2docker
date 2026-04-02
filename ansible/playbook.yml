@@ -197,7 +197,7 @@
           COPY . /app/
           RUN pip install --no-cache-dir -r requirements.txt || true
           EXPOSE 8000
-          CMD ["python", "-m", "gunicorn", "-k", "uvicorn.workers.UvicornWorker", "-w", "2", "-b", "0.0.0.0:8000", "main:app"]
+          CMD ["gunicorn", "-w", "2", "-b", "0.0.0.0:8000", "main:app"]
         dest: "{{ app_dir }}/Dockerfile"
         mode: '0644'
 
@@ -230,6 +230,12 @@
       shell: docker logs app
       when: wait_result is failed
       ignore_errors: yes
+      register: docker_logs
+
+    - name: Print Docker logs
+      debug:
+        msg: "{{ docker_logs.stdout_lines | default([]) }}"
+      when: wait_result is failed
 
     - name: Fail if app did not start
       fail:
