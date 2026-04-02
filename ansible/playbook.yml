@@ -237,6 +237,17 @@
         msg: "{{ docker_logs.stdout_lines | default([]) }}"
       when: wait_result is failed
 
+    - name: Show Docker container status
+      shell: docker ps -a
+      register: docker_ps_all
+      when: wait_result is failed
+      ignore_errors: yes
+
+    - name: Print Docker container status
+      debug:
+        msg: "{{ docker_ps_all.stdout_lines | default([]) }}"
+      when: wait_result is failed
+
     - name: Fail if app did not start
       fail:
         msg: "Application did not start. See Docker logs above."
